@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\StartABTest;
 use App\Http\Middleware\StartSession;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
@@ -38,6 +39,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             StartSession::class,
+            StartABTest::class,
         ],
 
         'api' => [

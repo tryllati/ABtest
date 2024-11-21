@@ -2,7 +2,7 @@
 
 namespace Database\Seeders\ABTests\HeaderLogo;
 
-use App\Models\ABTest;
+use App\Models\Test;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -14,14 +14,14 @@ class CreateNewABTestVariantHeaderLogoAlignCenterSeeder extends Seeder
      */
     public function run(): void
     {
-        $abTest = ABTest::where('name', 'Header logo alignment')->first();
+        $test = Test::where('name', 'Header logo alignment')->first();
 
-        DB::table('ab_tests_variants')->insert([
-            'ab_test_id' => $abTest->id,
-            'name' => 'align center',
+        DB::table('test_variants')->insert([
+            'test_id'      => $test->id,
+            'name'         => 'align center',
             'ratio_number' => 3,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'created_at'   => Carbon::now(),
+            'updated_at'   => Carbon::now(),
         ]);
     }
 }

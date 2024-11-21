@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ab_tests_variants', function (Blueprint $table) {
+        Schema::create('tests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('ab_test_id')->constrained()->cascadeOnDelete();
             $table->string('name');
-            $table->integer('ratio_number');
-            $table->tinyInteger('status')->default(1);
+            $table->enum('type', ['targeting ratio']);
+            $table->tinyInteger('status')->default(null)->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::drop('ab_tests_variants');
+        Schema::drop('tests');
     }
 };

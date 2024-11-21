@@ -2,7 +2,7 @@
 
 namespace Database\Seeders\ABTests\PageContent;
 
-use App\Models\ABTest;
+use App\Models\Test;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -14,14 +14,14 @@ class CreateNewABTestPageContentVariantCSeeder extends Seeder
      */
     public function run(): void
     {
-        $abTest = ABTest::where('name', 'Page content')->first();
+        $test = Test::where('name', 'Page content')->first();
 
-        DB::table('ab_tests_variants')->insert([
-            'ab_test_id' => $abTest->id,
-            'name' => 'content C',
+        DB::table('test_variants')->insert([
+            'test_id'      => $test->id,
+            'name'         => 'content C',
             'ratio_number' => 1,
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'created_at'   => Carbon::now(),
+            'updated_at'   => Carbon::now(),
         ]);
     }
 }

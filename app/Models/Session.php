@@ -25,4 +25,12 @@ class Session extends Model
     {
         return $this->hasMany(Event::class);
     }
+
+    /**
+     * @return HasMany<SessionTestVariant>
+     */
+    public function testVariants(): HasMany
+    {
+        return $this->hasMany(SessionTestVariant::class);
+    }
 }
