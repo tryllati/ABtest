@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\StatusScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -16,6 +17,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon $updated_at
  * @property-read Test $test
  */
+#[ScopedBy([StatusScope::class])]
 class TestVariant extends Model
 {
     protected $table = 'test_variants';

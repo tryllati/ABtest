@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ABTestDivisionTypeEnum;
+use App\Models\Scopes\StatusScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
  * @property Carbon $updated_at
  * @property-read EloquentCollection<int, TestVariant> $variants
  */
+#[ScopedBy([StatusScope::class])]
 class Test extends Model
 {
     protected $table = 'tests';
@@ -36,6 +38,6 @@ class Test extends Model
      */
     public function variants(): HasMany
     {
-        return $this->hasMany(TestVariant::class);
+        return $this->hasMany(TestVariant::class)->where('status', 1);
     }
 }

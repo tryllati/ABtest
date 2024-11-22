@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Test;
 use App\Services\ABTestService;
 use App\Services\SessionService;
 use Closure;
@@ -18,17 +19,14 @@ class StartABTest
 
     public function handle(Request $request, Closure $next): Response
     {
-
-        if($this->testService->testExist()) {
-
-
-
-        }else{
-            $this->sessionService->emptyABTest();
+        if($this->testService->tests()->isNotEmpty()) {
+            $this->testService->tests()
+                ->map(
+                    fn(Test $test) => $this->testService->runTest($test)
+                );
+        } else {
+            $this->sessionService->emptyABTest(); // Ez hogy is lesz itt??
         }
-
-
-        //exit('---');
 
         return $next($request);
     }

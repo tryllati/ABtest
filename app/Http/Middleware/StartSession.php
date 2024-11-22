@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class StartSession
 {
-    private const DB_SESSION_ID_KEY = 'db_session_id';
+    public const DB_SESSION_ID_KEY = 'db_session_id';
 
     public function __construct(
         private readonly Application $app,

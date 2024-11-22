@@ -2,15 +2,26 @@
 
 namespace App\Services;
 
+use App\Http\Middleware\StartSession;
 use App\Models\Session;
+use App\Models\SessionTestVariant;
+use App\Models\Test;
+use App\Models\TestVariant;
+use Illuminate\Contracts\Session\Session as SessionContract;
 
 class SessionService implements SessionServiceInterface
 {
     public function __construct(
-        private readonly Session $session
+        private readonly SessionContract $sessionManager,
+        private readonly Session $session,
+        private readonly SessionTestVariant $sessionTestVariant // Ha átalakítom külön szolgáltatásokra akkor lehet olvashatóbb
     ){
     }
 
+    public function dbSessionId()
+    {
+        return $this->sessionManager->get(StartSession::DB_SESSION_ID_KEY);
+    }
 
     public function emptyABTest(): void
     {
@@ -26,23 +37,36 @@ class SessionService implements SessionServiceInterface
         return true;
     }
 
-    /*
-    public function testExist(): bool
+    public function session(): Session
     {
-        return $this->tests()->isNotEmpty();
+        return $this->session;
     }
 
-    public function testCount(): int
+    public function setABTestVariant(Test $test, TestVariant $variant): void
     {
-        return $this->availableTests()->count();
+        // Event létrehozása
+        $this->session->events()
+            ->update([
+                'data' => ['ABTest' => [
+                    'test_id'      => $test->id,
+                    'test_name'    => $test->name,
+                    'variant_name' => $variant->name,
+                ]]
+            ]);
+
+        // session testVariant létrehozása
+        $this->session->testVariants()->create([
+            'test_variant_id' => $variant->id
+        ]);
     }
 
-    protected function availableTests(): Builder
+    public function sessionTestVariants(): SessionTestVariant // interface
     {
-        return $this->tests->where('status', 1);
+        return $this->sessionTestVariant;
     }
 
-
-*/
-
+    public function allSessionTestVariants()
+    {
+        return $this->sessionTestVariant->all();
+    }
 }

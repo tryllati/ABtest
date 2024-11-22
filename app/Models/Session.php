@@ -13,6 +13,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property-read EloquentCollection<int, Event> $events
+ * @property-read EloquentCollection<int, SessionTestVariant> testVariants
  */
 class Session extends Model
 {

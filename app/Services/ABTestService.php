@@ -2,27 +2,20 @@
 
 namespace App\Services;
 
+use App\Components\TargetingRatioDivisionCalculator;
+use App\Enums\ABTestDivisionTypeEnum;
 use App\Exceptions\DivisionTypeException;
 use App\Models\Test;
+use App\Models\TestVariant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 class ABTestService implements ABTestServiceInterface
 {
     public function __construct(
-        protected readonly SessionService $sessionService,
-        protected readonly Test $tests
+        private readonly SessionService $sessionService,
+        private readonly Test $tests
     ){
-    }
-
-    public function testExist(): bool
-    {
-        return $this->tests()->isNotEmpty();
-    }
-
-    public function testISNotExist(): bool
-    {
-        return $this->tests()->isEmpty();
     }
 
     public function testCount(): int
@@ -30,11 +23,19 @@ class ABTestService implements ABTestServiceInterface
         return $this->availableTests()->count();
     }
 
+    public function testVariantsExist(Test $test): int
+    {
+        return $this->testVariantsCount($test) > 0;
+    }
+
     public function testVariantsCount(Test $test): int
     {
         return $test->variants()->count();
     }
 
+    /**
+     * @return Builder<Test>
+     */
     public function availableTests(): Builder
     {
         return $this->tests->where('status', 1);
@@ -51,18 +52,35 @@ class ABTestService implements ABTestServiceInterface
     /**
      * @throws DivisionTypeException
      */
-    public function division(Test $test): void
+    public function runTest(Test $test): void
     {
-        switch($test->type->value)
-        {
-            case 'targeting ratio':
-                    // célzási arány meghatározása
-                break;
+        if($this->testVariantsExist($test)){
+            $variant = $this->divisionCalculator($test);
 
-            // other..
-
-            default:
-                throw new DivisionTypeException('Something went wrong!');
+            $this->sessionService->setABTestVariant($test, $variant);
         }
+
+        // sessionben is ellenőrizni kell majd valahol később
+        // Majd a sessionben kell az ellenőrzést megvalósítani, hogy ha ott már van nem kell vele foglalkozni
+    }
+
+    /**
+     * @param  Test $test
+     * @return TestVariant
+     *
+     * @throws DivisionTypeException
+     */
+    protected function divisionCalculator(Test $test): TestVariant
+    {
+        return match ($test->type) {
+            ABTestDivisionTypeEnum::TARGETING_RATIO =>
+                TargetingRatioDivisionCalculator::make($this->sessionService)
+                    ->calculate($test)
+                    ->nextVariant(),
+
+            // other division calculator..
+
+            default => throw new DivisionTypeException('Something went wrong!'),
+        };
     }
 }

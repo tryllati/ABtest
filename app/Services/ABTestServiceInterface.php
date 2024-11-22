@@ -8,15 +8,15 @@ use Illuminate\Database\Eloquent\Collection;
 
 interface ABTestServiceInterface
 {
-    public function testExist(): bool;
-
-    public function testISNotExist(): bool;
-
     public function testCount(): int;
 
     public function testVariantsCount(Test $test): int;
 
+    public function testVariantsExist(Test $test): int;
+
     public function availableTests(): Builder;
 
     public function tests(): Collection;
+
+    public function runTest(Test $test): void;
 }
