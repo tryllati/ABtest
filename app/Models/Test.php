@@ -17,8 +17,9 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property-read EloquentCollection<int, TestVariant> $variants
+ *
+ * @method booted [ScopedBy([StatusScope::class])
  */
-#[ScopedBy([StatusScope::class])]
 class Test extends Model
 {
     protected $table = 'tests';
@@ -38,6 +39,11 @@ class Test extends Model
      */
     public function variants(): HasMany
     {
-        return $this->hasMany(TestVariant::class)->where('status', 1);
+        return $this->hasMany(TestVariant::class);
+    }
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new StatusScope);
     }
 }

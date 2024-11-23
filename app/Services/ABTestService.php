@@ -7,38 +7,21 @@ use App\Enums\ABTestDivisionTypeEnum;
 use App\Exceptions\DivisionTypeException;
 use App\Models\Test;
 use App\Models\TestVariant;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 class ABTestService implements ABTestServiceInterface
 {
+    public const AB_TEST_VARIANT_SESSION_KEY = 'ab_test_variants';
+
     public function __construct(
-        private readonly SessionService $sessionService,
+        public readonly SessionService $sessionService,
         private readonly Test $tests
-    ){
+    ) {
     }
 
-    public function testCount(): int
+    public function test(): Test
     {
-        return $this->availableTests()->count();
-    }
-
-    public function testVariantsExist(Test $test): int
-    {
-        return $this->testVariantsCount($test) > 0;
-    }
-
-    public function testVariantsCount(Test $test): int
-    {
-        return $test->variants()->count();
-    }
-
-    /**
-     * @return Builder<Test>
-     */
-    public function availableTests(): Builder
-    {
-        return $this->tests->where('status', 1);
+        return $this->tests;
     }
 
     /**
@@ -46,7 +29,12 @@ class ABTestService implements ABTestServiceInterface
      */
     public function tests(): Collection
     {
-        return $this->availableTests()->get();
+        return $this->tests->get();
+    }
+
+    private function testVariantsExist(Test $test): int
+    {
+        return $test->variants()->count() > 0;
     }
 
     /**
@@ -54,14 +42,17 @@ class ABTestService implements ABTestServiceInterface
      */
     public function runTest(Test $test): void
     {
+        if($this->sessionService->sessionContainTestVariantByTestId($test->id)){
+            return;
+        }
+
         if($this->testVariantsExist($test)){
             $variant = $this->divisionCalculator($test);
 
-            $this->sessionService->setABTestVariant($test, $variant);
+            $this->sessionService->createDbSessionTestVariant($variant);
+            $this->sessionService->createSessionTestEvent($test, $variant);
+            $this->sessionService->saveTestVariantInSession($variant);
         }
-
-        // sessionben is ellenőrizni kell majd valahol később
-        // Majd a sessionben kell az ellenőrzést megvalósítani, hogy ha ott már van nem kell vele foglalkozni
     }
 
     /**
@@ -73,6 +64,7 @@ class ABTestService implements ABTestServiceInterface
     protected function divisionCalculator(Test $test): TestVariant
     {
         return match ($test->type) {
+
             ABTestDivisionTypeEnum::TARGETING_RATIO =>
                 TargetingRatioDivisionCalculator::make($this->sessionService)
                     ->calculate($test)

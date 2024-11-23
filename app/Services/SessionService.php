@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Http\Middleware\StartSession;
 use App\Models\Session;
 use App\Models\SessionTestVariant;
 use App\Models\Test;
@@ -14,27 +13,8 @@ class SessionService implements SessionServiceInterface
     public function __construct(
         private readonly SessionContract $sessionManager,
         private readonly Session $session,
-        private readonly SessionTestVariant $sessionTestVariant // Ha átalakítom külön szolgáltatásokra akkor lehet olvashatóbb
+        private readonly SessionTestVariant $sessionTestVariant
     ){
-    }
-
-    public function dbSessionId()
-    {
-        return $this->sessionManager->get(StartSession::DB_SESSION_ID_KEY);
-    }
-
-    public function emptyABTest(): void
-    {
-        if($this->issetABTest())
-        {
-            //megszüntetjük a tesztet
-        }
-    }
-
-    public function issetABTest(): bool
-    {
-
-        return true;
     }
 
     public function session(): Session
@@ -42,31 +22,66 @@ class SessionService implements SessionServiceInterface
         return $this->session;
     }
 
-    public function setABTestVariant(Test $test, TestVariant $variant): void
-    {
-        // Event létrehozása
-        $this->session->events()
-            ->update([
-                'data' => ['ABTest' => [
-                    'test_id'      => $test->id,
-                    'test_name'    => $test->name,
-                    'variant_name' => $variant->name,
-                ]]
-            ]);
-
-        // session testVariant létrehozása
-        $this->session->testVariants()->create([
-            'test_variant_id' => $variant->id
-        ]);
-    }
-
-    public function sessionTestVariants(): SessionTestVariant // interface
+    public function sessionTestVariants(): SessionTestVariant
     {
         return $this->sessionTestVariant;
     }
 
-    public function allSessionTestVariants()
+    public function sessionContainTestVariantByTestId(int $testId): bool
     {
-        return $this->sessionTestVariant->all();
+        $abTestVariants = $this->sessionManager->get(ABTestService::AB_TEST_VARIANT_SESSION_KEY);
+
+        if(empty($abTestVariants)){
+            return false;
+        }
+
+        foreach($abTestVariants as $variant){
+
+            if($variant->test_id == $testId){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function createDbSessionTestVariant(TestVariant $variant): void
+    {
+        $sessionTestVariant = new SessionTestVariant;
+
+        $sessionTestVariant->session_id      = $this->session->id;
+        $sessionTestVariant->test_variant_id = $variant->id;
+
+        $sessionTestVariant->save();
+    }
+
+    public function createSessionTestEvent(Test $test, TestVariant $variant): void
+    {
+        $this->session->events()
+            ->create([
+                'url'  => url(request()->path()),
+                'type' => 'testselected',
+                'data' => [
+                    'ABTest' => [
+                        'test_id'      => $test->id,
+                        'test_name'    => $test->name,
+                        'variant_id  ' => $variant->id,
+                        'variant_name' => $variant->name,
+                    ]
+                ]
+            ]);
+    }
+
+    public function saveTestVariantInSession(TestVariant $variant): void
+    {
+        $abTestVariants = $this->sessionManager->get(ABTestService::AB_TEST_VARIANT_SESSION_KEY);
+
+        if(empty($abTestVariants)){
+            $abTestVariants = [$variant];
+        }else{
+            $abTestVariants[] = $variant;
+        }
+
+        $this->sessionManager->put(ABTestService::AB_TEST_VARIANT_SESSION_KEY, $abTestVariants);
     }
 }

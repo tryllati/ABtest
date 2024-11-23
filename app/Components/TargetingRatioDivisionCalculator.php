@@ -79,6 +79,7 @@ class TargetingRatioDivisionCalculator extends DivisionCalculator
     private function dbSessionTestVariantsCount(TestVariant $variant): int
     {
         return $this->sessionService->sessionTestVariants()
-                    ->where('test_variant_id', $variant->id)->count();
+                    ->where('test_variant_id', $variant->id)
+                    ->count();
     }
 }

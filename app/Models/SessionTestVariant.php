@@ -30,10 +30,9 @@ class SessionTestVariant extends Model
 
     /**
      * @return BelongsTo<TestVariant, SessionTestVariant>
-
+     */
     public function testVariant(): BelongsTo
     {
         return $this->belongsTo(TestVariant::class);
     }
-    */
 }

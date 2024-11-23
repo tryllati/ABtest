@@ -16,8 +16,9 @@ use Illuminate\Support\Carbon;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property-read Test $test
+ *
+ * @method booted [ScopedBy([StatusScope::class])
  */
-#[ScopedBy([StatusScope::class])]
 class TestVariant extends Model
 {
     protected $table = 'test_variants';
@@ -39,5 +40,10 @@ class TestVariant extends Model
     public function test(): BelongsTo
     {
         return $this->belongsTo(Test::class);
+    }
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new StatusScope);
     }
 }

@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use App\Models\Session;
+use App\Models\SessionTestVariant;
+
 interface SessionServiceInterface
 {
-    public function emptyABTest(): void;
+    public function session(): Session;
 
-    public function issetABTest(): bool;
+    public function sessionTestVariants(): SessionTestVariant;
 }
