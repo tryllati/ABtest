@@ -53,7 +53,7 @@ class ABTestService implements ABTestServiceInterface
             $variant = $this->divisionCalculator($test);
 
             $this->sessionService->createDbSessionTestVariant($variant);
-            $this->sessionService->createSessionTestEvent($test, $variant);
+            $this->eventService->createTestSelectedTestEvent($test, $variant);
             $this->sessionService->saveTestVariantInSession($variant);
             $this->eventService->updatePageViewEventWithABTestByTestId($test->id);
         }

@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\Test;
+use App\Models\TestVariant;
+
 class EventService implements EventServiceInterface
 {
     public function __construct(
@@ -24,5 +27,22 @@ class EventService implements EventServiceInterface
         $event->update([
             'data' => $eventDetails
         ]);
+    }
+
+    public function createTestSelectedTestEvent(Test $test, TestVariant $variant): void
+    {
+        $this->sessionService->session()->events()
+            ->create([
+                'url'  => url(request()->path()),
+                'type' => 'testselected',
+                'data' => [
+                    'ABTest' => [
+                        'test_id'      => $test->id,
+                        'test_name'    => $test->name,
+                        'variant_id  ' => $variant->id,
+                        'variant_name' => $variant->name,
+                    ]
+                ]
+            ]);
     }
 }

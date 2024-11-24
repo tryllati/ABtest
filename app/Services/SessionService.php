@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Session;
 use App\Models\SessionTestVariant;
-use App\Models\Test;
 use App\Models\TestVariant;
 use Illuminate\Contracts\Session\Session as SessionContract;
 
@@ -46,23 +45,6 @@ class SessionService implements SessionServiceInterface
         $sessionTestVariant->test_variant_id = $variant->id;
 
         $sessionTestVariant->save();
-    }
-
-    public function createSessionTestEvent(Test $test, TestVariant $variant): void
-    {
-        $this->session->events()
-            ->create([
-                'url'  => url(request()->path()),
-                'type' => 'testselected',
-                'data' => [
-                    'ABTest' => [
-                        'test_id'      => $test->id,
-                        'test_name'    => $test->name,
-                        'variant_id  ' => $variant->id,
-                        'variant_name' => $variant->name,
-                    ]
-                ]
-            ]);
     }
 
     public function saveTestVariantInSession(TestVariant $variant): void

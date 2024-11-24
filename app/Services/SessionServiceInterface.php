@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Session;
 use App\Models\SessionTestVariant;
-use App\Models\Test;
 use App\Models\TestVariant;
 
 interface SessionServiceInterface
@@ -16,8 +15,6 @@ interface SessionServiceInterface
     public function sessionContainTestVariantByTestId(int $testId): bool;
 
     public function createDbSessionTestVariant(TestVariant $variant): void;
-
-    public function createSessionTestEvent(Test $test, TestVariant $variant): void;
 
     public function saveTestVariantInSession(TestVariant $variant): void;
 }
