@@ -16,7 +16,7 @@
             }
         </style>
     </head>
-    <body >
+    <body>
 
         @include('layout.header')
 

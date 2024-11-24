@@ -14,7 +14,7 @@ class CreateNewABTestPageContentVariantASeeder extends Seeder
      */
     public function run(): void
     {
-        $test = Test::where('name', 'Page content')->first();
+        $test = Test::withoutGlobalScopes()->where('name', 'Page content')->first();
 
         DB::table('test_variants')->insert([
             'test_id'      => $test->id,

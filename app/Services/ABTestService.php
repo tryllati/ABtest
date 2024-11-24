@@ -14,7 +14,8 @@ class ABTestService implements ABTestServiceInterface
     public const AB_TEST_VARIANT_SESSION_KEY = 'ab_test_variants';
 
     public function __construct(
-        public readonly SessionService $sessionService,
+        private readonly SessionService $sessionService,
+        private readonly EventService $eventService,
         private readonly Test $tests
     ) {
     }
@@ -43,6 +44,8 @@ class ABTestService implements ABTestServiceInterface
     public function runTest(Test $test): void
     {
         if($this->sessionService->sessionContainTestVariantByTestId($test->id)){
+
+            $this->eventService->updatePageViewEventWithABTestByTestId($test->id);
             return;
         }
 
@@ -52,6 +55,7 @@ class ABTestService implements ABTestServiceInterface
             $this->sessionService->createDbSessionTestVariant($variant);
             $this->sessionService->createSessionTestEvent($test, $variant);
             $this->sessionService->saveTestVariantInSession($variant);
+            $this->eventService->updatePageViewEventWithABTestByTestId($test->id);
         }
     }
 

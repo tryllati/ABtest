@@ -24,7 +24,7 @@ class TargetingRatioDivisionCalculator extends DivisionCalculator
         foreach($variants as $variant){
 
             $subtests[] = [
-                'name'         => $variant->name,
+                'id'           => $variant->id,
                 'target_ratio' => $variant->ratio_number,
                 'displays'     => $this->dbSessionTestVariantsCount($variant)
             ];
@@ -47,7 +47,7 @@ class TargetingRatioDivisionCalculator extends DivisionCalculator
     {
         $this->nextVariant = $variants->filter(
             function(TestVariant $variant) use ($nextSubtest) {
-                return $nextSubtest['name'] === $variant->name;
+                return $nextSubtest['id'] === $variant->id;
             }
         )->first();
     }

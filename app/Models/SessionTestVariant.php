@@ -8,8 +8,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
+ * @property int session_id
+ * @property int test_variant_id
  * @property-read EloquentCollection<int, Session> $session
- * @property-read EloquentCollection<int, Test> $testVariant
+ * @property-read EloquentCollection<int, TestVariant> $testVariant
  */
 class SessionTestVariant extends Model
 {

@@ -14,7 +14,7 @@ class CreateNewABTestVariantHeaderLogoAlignLeftSeeder extends Seeder
      */
     public function run(): void
     {
-        $test = Test::where('name', 'Header logo alignment')->first();
+        $test = Test::withoutGlobalScopes()->where('name', 'Header logo alignment')->first();
 
         DB::table('test_variants')->insert([
             'test_id'      => $test->id,

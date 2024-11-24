@@ -15,14 +15,23 @@ class StartABTest
     ) {
     }
 
+    /**
+     * Handle an incoming request.
+     *
+     * @param Request $request
+     * @param Closure(Request): (Response) $next
+     *
+     * @return Response
+     */
     public function handle(Request $request, Closure $next): Response
     {
-        if($this->testService->tests()->isNotEmpty()) {
+        $tests = $this->testService->tests();
 
-            $this->testService->tests()
-                ->map(
-                    fn(Test $test) => $this->testService->runTest($test)
-                );
+        if($tests->isNotEmpty()) {
+
+            $tests->map(
+                fn(Test $test) => $this->testService->runTest($test)
+            );
         }
 
         return $next($request);

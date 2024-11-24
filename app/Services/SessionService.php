@@ -11,7 +11,7 @@ use Illuminate\Contracts\Session\Session as SessionContract;
 class SessionService implements SessionServiceInterface
 {
     public function __construct(
-        private readonly SessionContract $sessionManager,
+        public readonly SessionContract $sessionManager,
         private readonly Session $session,
         private readonly SessionTestVariant $sessionTestVariant
     ){
@@ -35,14 +35,7 @@ class SessionService implements SessionServiceInterface
             return false;
         }
 
-        foreach($abTestVariants as $variant){
-
-            if($variant->test_id == $testId){
-                return true;
-            }
-        }
-
-        return false;
+        return array_key_exists($testId, $abTestVariants);
     }
 
     public function createDbSessionTestVariant(TestVariant $variant): void
@@ -77,10 +70,10 @@ class SessionService implements SessionServiceInterface
         $abTestVariants = $this->sessionManager->get(ABTestService::AB_TEST_VARIANT_SESSION_KEY);
 
         if(empty($abTestVariants)){
-            $abTestVariants = [$variant];
-        }else{
-            $abTestVariants[] = $variant;
+            $abTestVariants = [];
         }
+
+        $abTestVariants[$variant->test_id] = $variant;
 
         $this->sessionManager->put(ABTestService::AB_TEST_VARIANT_SESSION_KEY, $abTestVariants);
     }
